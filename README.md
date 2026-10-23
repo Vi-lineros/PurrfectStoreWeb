@@ -31,7 +31,12 @@ Vite mostrará en la terminal la dirección local para abrir la aplicación.
 npm run build    # Genera la versión de producción en dist/
 npm run preview  # Previsualiza la versión de producción
 npm run lint     # Ejecuta ESLint
+npm test         # Ejecuta las pruebas en Chrome con Karma
 ```
+
+`npm test` inicia Karma en modo de observación y abre Chrome. Desde el navegador
+se pueden revisar los resultados y usar **Debug** para ejecutar las pruebas en
+el navegador.
 
 ## Configuración de servicios
 
