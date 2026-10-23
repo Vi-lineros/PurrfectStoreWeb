@@ -1,0 +1,65 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  overflow-x: hidden;
+  background-image: url('/img/backgroundimage.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  color: #2b2e33;
+}
+
+:root {
+  --color-dark-charcoal: #2b2e33;
+  --color-slate-blue: #4a5a6a;
+  --color-cart-green: #1f7a4e;
+}
+
+.brand-title {
+  color: var(--color-dark-charcoal) !important;
+}
+
+.btn-primary, .bg-primary {
+  background-color: var(--color-slate-blue) !important;
+  border-color: var(--color-slate-blue) !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-primary {
+  color: var(--color-slate-blue) !important;
+  border-color: var(--color-slate-blue) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-slate-blue) !important;
+  color: #ffffff !important;
+}
+
+.text-primary {
+  color: var(--color-slate-blue) !important;
+}
+
+.btn-success {
+  background-color: var(--color-cart-green) !important;
+  border-color: var(--color-cart-green) !important;
+}
+
+.bg-dark {
+  background-color: var(--color-dark-charcoal) !important;
+}
+
+.card {
+  border-radius: 8px;
+  border: 1px solid #ced4da !important;
+}
