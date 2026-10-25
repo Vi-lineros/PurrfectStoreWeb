@@ -38,13 +38,6 @@ export function validarDireccionEnvio(direccionObj) {
   );
 }
 
-export function aplicarDescuento(precio, porcentajeDescuento) {
-  if (precio <= 0) return 0;
-  if (!porcentajeDescuento || porcentajeDescuento <= 0) return precio;
-  const montoDescuento = (precio * porcentajeDescuento) / 100;
-  return precio - montoDescuento;
-}
-
 export function filtrarPorCategoria(catalogo, categoriaBuscada) {
   if (!Array.isArray(catalogo)) return [];
   const catNormalizada = normalizarTexto(categoriaBuscada);

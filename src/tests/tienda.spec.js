@@ -4,14 +4,13 @@ import {
   validarCorreo,
   formatearNumeroBoleta,
   validarDireccionEnvio,
-  aplicarDescuento,
   filtrarPorCategoria,
   eliminarProductoDelCarrito,
   actualizarCantidadProducto,
   comprobarStockDisponible
 } from '../utils/tiendaUtils.js';
 
-describe("Suite de Pruebas Unitarias - PurrfectStore (20 Casos)", function () {
+describe("Suite de Pruebas Unitarias - PurrfectStore (18 Casos)", function () {
 
   it("01 [ÉXITO] Debe calcular el total acumulado con precios y cantidades válidas", function () {
     const carrito = [
@@ -22,7 +21,7 @@ describe("Suite de Pruebas Unitarias - PurrfectStore (20 Casos)", function () {
     expect(resultado).toBe(38000);
   });
 
-  it("02 [ERROR/BORDE] Debe retornar $0 cuando el carrito está vacío o no es un arreglo", function () {
+  it("02 [ERROR] Debe retornar $0 cuando el carrito está vacío o no es un arreglo", function () {
     expect(calcularTotalCarrito([])).toBe(0);
     expect(calcularTotalCarrito(null)).toBe(0);
   });
@@ -33,7 +32,7 @@ describe("Suite de Pruebas Unitarias - PurrfectStore (20 Casos)", function () {
     expect(resultado).toBe("alimento felino premium");
   });
 
-  it("04 [ERROR/BORDE] Debe retornar una cadena vacía si se ingresa null, undefined o texto vacío", function () {
+  it("04 [ERROR] Debe retornar una cadena vacía si se ingresa null, undefined o texto vacío", function () {
     expect(normalizarTexto(null)).toBe("");
     expect(normalizarTexto(undefined)).toBe("");
     expect(normalizarTexto("   ")).toBe("");
@@ -44,7 +43,7 @@ describe("Suite de Pruebas Unitarias - PurrfectStore (20 Casos)", function () {
     expect(validarCorreo(correoValido)).toBeTrue();
   });
 
-  it("06 [ERROR/BORDE] Debe rechazar correos que no contengan arroba o dominio válido", function () {
+  it("06 [ERROR] Debe rechazar correos que no contengan arroba o dominio válido", function () {
     expect(validarCorreo("correo_sin_arroba.com")).toBeFalse();
     expect(validarCorreo("usuario@dominiosinpunto")).toBeFalse();
   });
@@ -55,7 +54,7 @@ describe("Suite de Pruebas Unitarias - PurrfectStore (20 Casos)", function () {
     expect(resultado).toBe("000089");
   });
 
-  it("08 [ERROR/BORDE] Debe retornar '000001' por defecto si el ID recibido es nulo o no numérico", function () {
+  it("08 [ERROR] Debe retornar '000001' por defecto si el ID recibido es nulo o no numérico", function () {
     expect(formatearNumeroBoleta(null)).toBe("000001");
     expect(formatearNumeroBoleta("texto_invalido")).toBe("000001");
   });
@@ -65,26 +64,13 @@ describe("Suite de Pruebas Unitarias - PurrfectStore (20 Casos)", function () {
     expect(validarDireccionEnvio(direccionValida)).toBeTrue();
   });
 
-  it("10 [ERROR/BORDE] Debe rechazar direcciones vacías o compuestas únicamente por espacios", function () {
+  it("10 [ERROR] Debe rechazar direcciones vacías o compuestas únicamente por espacios", function () {
     const direccionInvalida = { direccion: "    ", comuna: "Santiago" };
     expect(validarDireccionEnvio(direccionInvalida)).toBeFalse();
     expect(validarDireccionEnvio(null)).toBeFalse();
   });
 
-  it("11 [ÉXITO] Debe aplicar correctamente un 20% de descuento sobre el precio base", function () {
-    const precioBase = 20000;
-    const descuento = 20;
-    const precioFinal = aplicarDescuento(precioBase, descuento);
-    expect(precioFinal).toBe(16000);
-  });
-
-  it("12 [ERROR/BORDE] Debe devolver el precio original sin cambios si el descuento es cero o negativo", function () {
-    const precioBase = 12000;
-    expect(aplicarDescuento(precioBase, 0)).toBe(12000);
-    expect(aplicarDescuento(precioBase, -15)).toBe(12000);
-  });
-
-  it("13 [ÉXITO] Debe filtrar y encontrar los productos pertenecientes a la categoría 'Juguetes'", function () {
+  it("11 [ÉXITO] Debe filtrar y encontrar los productos pertenecientes a la categoría 'Juguetes'", function () {
     const catalogo = [
       { id: 1, name: "Ratón con Catnip", category: "Juguetes" },
       { id: 2, name: "Comedero Doble", category: "Accesorios" },
@@ -94,13 +80,13 @@ describe("Suite de Pruebas Unitarias - PurrfectStore (20 Casos)", function () {
     expect(resultado.length).toBe(2);
   });
 
-  it("14 [ERROR/BORDE] Debe retornar un arreglo vacío si la categoría buscada no existe en el catálogo", function () {
+  it("12 [ERROR] Debe retornar un arreglo vacío si la categoría buscada no existe en el catálogo", function () {
     const catalogo = [{ id: 1, name: "Arena Sanitaria", category: "Higiene" }];
     const resultado = filtrarPorCategoria(catalogo, "Ropa Felina Inexistente");
     expect(resultado.length).toBe(0);
   });
 
-  it("15 [ÉXITO] Debe eliminar del carrito el producto coincidente con el ID otorgado", function () {
+  it("13 [ÉXITO] Debe eliminar del carrito el producto coincidente con el ID otorgado", function () {
     const carritoInicial = [
       { id: 10, name: "Rascador Torre" },
       { id: 20, name: "Snack de Salmón" }
@@ -110,31 +96,31 @@ describe("Suite de Pruebas Unitarias - PurrfectStore (20 Casos)", function () {
     expect(carritoActualizado[0].id).toBe(20);
   });
 
-  it("16 [ERROR/BORDE] Debe mantener la lista sin cambios si el ID a eliminar no se encuentra en el carrito", function () {
+  it("14 [ERROR] Debe mantener la lista sin cambios si el ID a eliminar no se encuentra en el carrito", function () {
     const carritoInicial = [{ id: 10, name: "Rascador Torre" }];
     const carritoActualizado = eliminarProductoDelCarrito(carritoInicial, 999);
     expect(carritoActualizado.length).toBe(1);
   });
 
-  it("17 [ÉXITO] Debe actualizar la cantidad de un producto si el nuevo valor es mayor a cero", function () {
+  it("15 [ÉXITO] Debe actualizar la cantidad de un producto si el nuevo valor es mayor a cero", function () {
     const carrito = [{ id: 5, name: "Plato Cerámica", cantidad: 1 }];
     const carritoActualizado = actualizarCantidadProducto(carrito, 5, 3);
     expect(carritoActualizado[0].cantidad).toBe(3);
   });
 
-  it("18 [ERROR/BORDE] Debe remover el producto del carrito si la nueva cantidad solicitada es 0 o menor", function () {
+  it("16 [ERROR] Debe remover el producto del carrito si la nueva cantidad solicitada es 0 o menor", function () {
     const carrito = [{ id: 5, name: "Plato Cerámica", cantidad: 2 }];
     const carritoActualizado = actualizarCantidadProducto(carrito, 5, 0);
     expect(carritoActualizado.length).toBe(0);
   });
 
-  it("19 [ÉXITO] Debe confirmar que hay stock suficiente cuando la cantidad no supera el límite", function () {
+  it("17 [ÉXITO] Debe confirmar que hay stock suficiente cuando la cantidad no supera el límite", function () {
     const producto = { id: 1, name: "Cama Felina", stock: 10 };
     const hayStock = comprobarStockDisponible(producto, 4);
     expect(hayStock).toBeTrue();
   });
 
-  it("20 [ERROR/BORDE] Debe rechazar la compra si la cantidad solicitada supera el stock disponible", function () {
+  it("18 [ERROR] Debe rechazar la compra si la cantidad solicitada supera el stock disponible", function () {
     const producto = { id: 1, name: "Cama Felina", stock: 2 };
     const hayStock = comprobarStockDisponible(producto, 5);
     expect(hayStock).toBeFalse();

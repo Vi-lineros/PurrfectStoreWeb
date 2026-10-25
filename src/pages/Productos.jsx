@@ -26,7 +26,10 @@ export default function Productos({ onAgregarAlCarrito }) {
   useEffect(() => {
     const cargarLista = async () => {
       const datos = await obtenerProductos();
-      setProductos(datos);
+      const ordenados = Array.isArray(datos)
+        ? [...datos].sort((a, b) => Number(a.id) - Number(b.id))
+        : [];
+      setProductos(ordenados);
       setCargando(false);
     };
     cargarLista();
@@ -63,7 +66,7 @@ export default function Productos({ onAgregarAlCarrito }) {
     if (orden === 'precio-mayor') return precioB - precioA;
     if (orden === 'nombre-az') return nombreA.localeCompare(nombreB);
     if (orden === 'nombre-za') return nombreB.localeCompare(nombreA);
-    return 0;
+    return Number(a.id) - Number(b.id);
   });
 
   return (
@@ -84,7 +87,7 @@ export default function Productos({ onAgregarAlCarrito }) {
             value={orden}
             onChange={(e) => setOrden(e.target.value)}
           >
-            <option value="relevancia">Ordenar por: Relevancia</option>
+            <option value="relevancia">Ordenar por: ID (Menor a Mayor)</option>
             <option value="precio-menor">Precio: Menor a Mayor</option>
             <option value="precio-mayor">Precio: Mayor a Menor</option>
             <option value="nombre-az">Nombre: A - Z</option>

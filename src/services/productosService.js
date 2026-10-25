@@ -20,7 +20,7 @@ export async function obtenerProductos() {
       }
     }
   } catch (error) {
-    console.warn('Error al conectar con Xano, utilizando datos locales de respaldo:', error);
+    console.warn('Error al conectar con Xano', error);
   }
 
   productosCache = productosIniciales;

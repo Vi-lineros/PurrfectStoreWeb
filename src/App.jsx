@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -14,7 +14,102 @@ import Registro from './pages/Registro';
 import Nosotros from './pages/Nosotros';
 import Contacto from './pages/Contacto';
 
+// Importación de la vista de Administración
+import AdminDashboard from './pages/admin/AdminDashboard';
+
 import { XANO_ECOMMERCE_URL } from './config/xano';
+
+// Componente interno para gestionar la visibilidad del Navbar/Footer público
+function AppContent({
+  carrito,
+  carritoId,
+  usuario,
+  setUsuario,
+  iniciarSesion,
+  cerrarSesion,
+  agregarAlCarrito,
+  actualizarCantidadProducto,
+  eliminarProducto,
+  calcularTotalCarrito,
+  completarPedidoAprobado,
+  completarPedidoRechazado,
+}) {
+  const location = useLocation();
+  const esRutaAdmin = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="d-flex flex-column min-vh-100">
+      {/* Oculta el Navbar público si estamos en /admin */}
+      {!esRutaAdmin && (
+        <Navbar
+          carritoTotal={calcularTotalCarrito()}
+          usuario={usuario}
+          onCerrarSesion={cerrarSesion}
+        />
+      )}
+
+      <div className="flex-grow-1">
+        <Routes>
+          {/* --- RUTAS PÚBLICAS --- */}
+          <Route path="/" element={<Home onAgregarAlCarrito={agregarAlCarrito} />} />
+          <Route path="/productos" element={<Productos onAgregarAlCarrito={agregarAlCarrito} />} />
+          <Route path="/categorias" element={<Productos onAgregarAlCarrito={agregarAlCarrito} />} />
+          <Route path="/producto/:id" element={<DetalleProducto onAgregarAlCarrito={agregarAlCarrito} />} />
+          <Route path="/nosotros" element={<Nosotros />} />
+          <Route path="/contacto" element={<Contacto usuario={usuario} />} />
+          <Route
+            path="/carrito"
+            element={
+              <Carrito
+                carrito={carrito}
+                usuario={usuario}
+                onActualizarCantidad={actualizarCantidadProducto}
+                onEliminarProducto={eliminarProducto}
+              />
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <Checkout
+                carrito={carrito}
+                carritoId={carritoId}
+                usuario={usuario}
+                onCompletarPedido={completarPedidoAprobado}
+                onRechazarPedido={completarPedidoRechazado}
+                onActualizarUsuario={setUsuario}
+              />
+            }
+          />
+          <Route
+            path="/iniciar-sesion"
+            element={usuario ? <Navigate to="/" /> : <Login onLoginExitoso={iniciarSesion} />}
+          />
+          <Route
+            path="/crear-sesion"
+            element={usuario ? <Navigate to="/" /> : <Registro onRegistroExitoso={iniciarSesion} />}
+          />
+
+          {/* --- RUTA DE ADMINISTRACIÓN (Acceso directo por URL) --- */}
+          <Route path="/admin" element={<AdminDashboard />} />
+
+          {/* --- RUTA 404 POR DEFECTO --- */}
+          <Route
+            path="*"
+            element={
+              <div className="container text-center py-5">
+                <h2 className="text-muted">404 - Página No Encontrada</h2>
+              </div>
+            }
+          />
+        </Routes>
+      </div>
+
+      {/* Oculta el Footer público si estamos en /admin */}
+      {!esRutaAdmin && <Footer />}
+    </div>
+  );
+}
 
 export default function App() {
   const [carrito, setCarrito] = useState([]);
@@ -316,58 +411,20 @@ export default function App() {
 
   return (
     <Router>
-      <div className="d-flex flex-column min-vh-100">
-        <Navbar
-          carritoTotal={calcularTotalCarrito()}
-          usuario={usuario}
-          onCerrarSesion={cerrarSesion}
-        />
-
-        <div className="flex-grow-1">
-          <Routes>
-            <Route path="/" element={<Home onAgregarAlCarrito={agregarAlCarrito} />} />
-            <Route path="/productos" element={<Productos onAgregarAlCarrito={agregarAlCarrito} />} />
-            <Route path="/categorias" element={<Productos onAgregarAlCarrito={agregarAlCarrito} />} />
-            <Route path="/producto/:id" element={<DetalleProducto onAgregarAlCarrito={agregarAlCarrito} />} />
-            <Route path="/nosotros" element={<Nosotros />} />
-            <Route path="/contacto" element={<Contacto usuario={usuario} />} />
-            <Route
-              path="/carrito"
-              element={
-                <Carrito
-                  carrito={carrito}
-                  usuario={usuario}
-                  onActualizarCantidad={actualizarCantidadProducto}
-                  onEliminarProducto={eliminarProducto}
-                />
-              }
-            />
-            <Route
-              path="/checkout"
-              element={
-                <Checkout
-                  carrito={carrito}
-                  carritoId={carritoId}
-                  usuario={usuario}
-                  onCompletarPedido={completarPedidoAprobado}
-                  onRechazarPedido={completarPedidoRechazado}
-                  onActualizarUsuario={setUsuario}
-                />
-              }
-            />
-            <Route
-              path="/iniciar-sesion"
-              element={usuario ? <Navigate to="/" /> : <Login onLoginExitoso={iniciarSesion} />}
-            />
-            <Route
-              path="/crear-sesion"
-              element={usuario ? <Navigate to="/" /> : <Registro onRegistroExitoso={iniciarSesion} />}
-            />
-          </Routes>
-        </div>
-
-        <Footer />
-      </div>
+      <AppContent
+        carrito={carrito}
+        carritoId={carritoId}
+        usuario={usuario}
+        setUsuario={setUsuario}
+        iniciarSesion={iniciarSesion}
+        cerrarSesion={cerrarSesion}
+        agregarAlCarrito={agregarAlCarrito}
+        actualizarCantidadProducto={actualizarCantidadProducto}
+        eliminarProducto={eliminarProducto}
+        calcularTotalCarrito={calcularTotalCarrito}
+        completarPedidoAprobado={completarPedidoAprobado}
+        completarPedidoRechazado={completarPedidoRechazado}
+      />
     </Router>
   );
 }

@@ -13,7 +13,10 @@ export default function Home({ onAgregarAlCarrito }) {
   useEffect(() => {
     const cargarDatos = async () => {
       const listaObtenida = await obtenerProductos();
-      setProductos(listaObtenida);
+      const ordenados = Array.isArray(listaObtenida)
+        ? [...listaObtenida].sort((a, b) => Number(a.id) - Number(b.id))
+        : [];
+      setProductos(ordenados);
       setCargando(false);
     };
     cargarDatos();
