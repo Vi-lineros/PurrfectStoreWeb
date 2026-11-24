@@ -5,6 +5,10 @@ export default function Navbar({ carritoTotal = 0, usuario = null, onCerrarSesio
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const navigate = useNavigate();
 
+  const esAdmin =
+    usuario &&
+    ((usuario.role || usuario.rol || '').toLowerCase() === 'admin');
+
   const ejecutarBusqueda = (e) => {
     e.preventDefault();
     if (terminoBusqueda.trim()) {
@@ -61,11 +65,23 @@ export default function Navbar({ carritoTotal = 0, usuario = null, onCerrarSesio
 
           <div className="d-flex align-items-center gap-2">
             {usuario ? (
-              <div className="d-flex align-items-center gap-3">
-                <span className="fw-bold text-dark fs-6">
-                  <i className="bi bi-person-circle me-1 text-primary"></i>
+              <div className="d-flex align-items-center gap-2 flex-wrap">
+                <span className="fw-bold text-dark fs-6 me-1">
                   {usuario.name || usuario.first_name || 'Usuario'}
                 </span>
+
+                {esAdmin && (
+                  <Link to="/admin" className="btn btn-warning btn-sm fw-bold">
+                    <i className="bi bi-speedometer2 me-1"></i>
+                    Panel Admin
+                  </Link>
+                )}
+
+                <Link to="/perfil" className="btn btn-outline-primary btn-sm fw-medium">
+                  <i className="bi bi-person-circle me-1"></i>
+                  Mi Perfil
+                </Link>
+
                 <button
                   onClick={onCerrarSesion}
                   className="btn btn-outline-danger btn-sm fw-medium"
@@ -75,10 +91,10 @@ export default function Navbar({ carritoTotal = 0, usuario = null, onCerrarSesio
               </div>
             ) : (
               <>
-                <Link to="/iniciar-sesion" className="btn btn-outline-primary px-3 fw-medium">
+                <Link to="/login" className="btn btn-outline-primary px-3 fw-medium">
                   Iniciar sesión
                 </Link>
-                <Link to="/crear-sesion" className="btn btn-primary px-3 fw-medium">
+                <Link to="/signup" className="btn btn-primary px-3 fw-medium">
                   Crear cuenta
                 </Link>
               </>

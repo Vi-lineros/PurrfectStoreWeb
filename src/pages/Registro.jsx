@@ -66,7 +66,10 @@ export default function Registro({ onRegistroExitoso }) {
         try {
           await fetch(`${XANO_ECOMMERCE_URL}/cart`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
             body: JSON.stringify({
               user_id: usuarioCreado.id,
               status: 'en proceso',
@@ -93,7 +96,6 @@ export default function Registro({ onRegistroExitoso }) {
     <main className="container py-5">
       <div className="card shadow-sm border-0 rounded-3 overflow-hidden bg-white">
         <div className="row g-0">
-          
           <div className="col-md-5 d-none d-md-block bg-light">
             <img
               src="/img/authimage.jpg"
@@ -182,7 +184,7 @@ export default function Registro({ onRegistroExitoso }) {
               </div>
 
               <div className="d-flex justify-content-between align-items-center mt-4">
-                <Link to="/iniciar-sesion" className="small text-primary">
+                <Link to="/login" className="small text-primary">
                   ¿Ya tienes cuenta? Inicia sesión
                 </Link>
                 <button type="submit" className="btn btn-primary px-5 fw-bold shadow-sm" disabled={cargando}>
@@ -191,7 +193,6 @@ export default function Registro({ onRegistroExitoso }) {
               </div>
             </form>
           </div>
-
         </div>
       </div>
     </main>

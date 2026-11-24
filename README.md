@@ -184,3 +184,12 @@ Iniciar el servidor de desarrollo en la raiz del proyecto
 ## Tests de pruebas unitarios
 Para ejecutar los test usa el siguiente comando en la terminal:
 * npm test
+
+## Acceso de prueba (Admin)
+
+Para ingresar a la vista de administrador con Google (Auth0), puedes usar las siguientes credenciales de prueba:
+
+- **Correo:** purrfectstoreadmin@gmail.com
+- **Contraseña:** purrfectstoreadmin123
+
+> Estas credenciales son solo para pruebas en entorno de desarrollo/demostración.

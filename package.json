@@ -11,6 +11,7 @@
     "test": "karma start karma.conf.cjs"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.30.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.2",
     "react": "^19.3.1",

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -13,13 +14,12 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Nosotros from './pages/Nosotros';
 import Contacto from './pages/Contacto';
+import Perfil from './pages/Perfil';
 
-// Importación de la vista de Administración
 import AdminDashboard from './pages/admin/AdminDashboard';
 
-import { XANO_ECOMMERCE_URL } from './config/xano';
+import { XANO_AUTH_URL, XANO_ECOMMERCE_URL } from './config/xano';
 
-// Componente interno para gestionar la visibilidad del Navbar/Footer público
 function AppContent({
   carrito,
   carritoId,
@@ -37,9 +37,17 @@ function AppContent({
   const location = useLocation();
   const esRutaAdmin = location.pathname.startsWith('/admin');
 
+  const esAdmin =
+    usuario &&
+    ((usuario.role || usuario.rol || '').toLowerCase() === 'admin');
+
+  const handleActualizarUsuario = (usuarioActualizado) => {
+    setUsuario(usuarioActualizado);
+    localStorage.setItem('usuario_purrfect', JSON.stringify(usuarioActualizado));
+  };
+
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* Oculta el Navbar público si estamos en /admin */}
       {!esRutaAdmin && (
         <Navbar
           carritoTotal={calcularTotalCarrito()}
@@ -50,7 +58,6 @@ function AppContent({
 
       <div className="flex-grow-1">
         <Routes>
-          {/* --- RUTAS PÚBLICAS --- */}
           <Route path="/" element={<Home onAgregarAlCarrito={agregarAlCarrito} />} />
           <Route path="/productos" element={<Productos onAgregarAlCarrito={agregarAlCarrito} />} />
           <Route path="/categorias" element={<Productos onAgregarAlCarrito={agregarAlCarrito} />} />
@@ -77,23 +84,44 @@ function AppContent({
                 usuario={usuario}
                 onCompletarPedido={completarPedidoAprobado}
                 onRechazarPedido={completarPedidoRechazado}
-                onActualizarUsuario={setUsuario}
+                onActualizarUsuario={handleActualizarUsuario}
               />
             }
           />
           <Route
-            path="/iniciar-sesion"
+            path="/login"
             element={usuario ? <Navigate to="/" /> : <Login onLoginExitoso={iniciarSesion} />}
           />
           <Route
-            path="/crear-sesion"
+            path="/signup"
             element={usuario ? <Navigate to="/" /> : <Registro onRegistroExitoso={iniciarSesion} />}
           />
 
-          {/* --- RUTA DE ADMINISTRACIÓN (Acceso directo por URL) --- */}
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/iniciar-sesion" element={<Navigate to="/login" replace />} />
+          <Route path="/crear-sesion" element={<Navigate to="/signup" replace />} />
 
-          {/* --- RUTA 404 POR DEFECTO --- */}
+          <Route
+            path="/perfil"
+            element={
+              usuario ? (
+                <Perfil usuario={usuario} onActualizarUsuario={handleActualizarUsuario} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              esAdmin ? (
+                <AdminDashboard />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+
           <Route
             path="*"
             element={
@@ -105,7 +133,6 @@ function AppContent({
         </Routes>
       </div>
 
-      {/* Oculta el Footer público si estamos en /admin */}
       {!esRutaAdmin && <Footer />}
     </div>
   );
@@ -115,6 +142,13 @@ export default function App() {
   const [carrito, setCarrito] = useState([]);
   const [carritoId, setCarritoId] = useState(null);
   const [usuario, setUsuario] = useState(null);
+
+  const {
+    user: auth0User,
+    isAuthenticated: auth0Autenticado,
+    isLoading: cargandoAuth0,
+    logout: auth0Logout,
+  } = useAuth0();
 
   const obtenerUserId = (usr) => {
     if (!usr) return null;
@@ -133,6 +167,38 @@ export default function App() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    const sincronizarGoogleConXano = async () => {
+      if (cargandoAuth0 || !auth0Autenticado || !auth0User?.email) return;
+
+      const tokenExistente = localStorage.getItem('authToken_purrfect');
+      if (tokenExistente) return;
+
+      try {
+        const respuesta = await fetch(`${XANO_AUTH_URL}/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: auth0User.email,
+            name: auth0User.name || auth0User.nickname || auth0User.email.split('@')[0],
+          }),
+        });
+
+        const datos = await respuesta.json();
+
+        if (respuesta.ok && datos.authToken && datos.user) {
+          iniciarSesion(datos.user, datos.authToken);
+        } else {
+          console.error('Error al validar usuario de Google en Xano:', datos);
+        }
+      } catch (err) {
+        console.error('Error de conexión con Xano al autenticar con Google:', err);
+      }
+    };
+
+    sincronizarGoogleConXano();
+  }, [auth0Autenticado, auth0User, cargandoAuth0]);
 
   useEffect(() => {
     const userId = obtenerUserId(usuario);
@@ -342,6 +408,14 @@ export default function App() {
     setUsuario(null);
     setCarrito([]);
     setCarritoId(null);
+
+    if (auth0Autenticado) {
+      auth0Logout({
+        logoutParams: {
+          returnTo: window.location.origin,
+        },
+      });
+    }
   };
 
   const agregarAlCarrito = async (producto, cantidadAAgregar = 1) => {

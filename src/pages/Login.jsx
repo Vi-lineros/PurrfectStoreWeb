@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 import { XANO_AUTH_URL } from '../config/xano';
 
 export default function Login({ onLoginExitoso }) {
@@ -8,6 +9,8 @@ export default function Login({ onLoginExitoso }) {
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   const navigate = useNavigate();
+
+  const { loginWithRedirect, isLoading: cargandoAuth0 } = useAuth0();
 
   const manejarSubmit = async (e) => {
     e.preventDefault();
@@ -37,11 +40,15 @@ export default function Login({ onLoginExitoso }) {
     }
   };
 
+  const manejarLoginGoogle = () => {
+    setError('');
+    loginWithRedirect();
+  };
+
   return (
     <main className="container py-5">
       <div className="card shadow-sm border-0 rounded-3 overflow-hidden bg-white">
         <div className="row g-0">
-          
           <div className="col-md-6 d-none d-md-block bg-light">
             <img
               src="/img/authimage.jpg"
@@ -88,7 +95,7 @@ export default function Login({ onLoginExitoso }) {
               </div>
 
               <div className="d-flex justify-content-between align-items-center mb-4 small">
-                <Link to="/crear-sesion" className="text-decoration-underline text-primary">
+                <Link to="/signup" className="text-decoration-underline text-primary">
                   ¿No tienes cuenta? Regístrate aquí
                 </Link>
                 <span className="text-secondary" style={{ cursor: 'not-allowed' }}>
@@ -99,13 +106,28 @@ export default function Login({ onLoginExitoso }) {
               <button
                 type="submit"
                 className="btn btn-primary w-100 fw-bold py-2 shadow-sm text-uppercase"
-                disabled={cargando}
+                disabled={cargando || cargandoAuth0}
               >
                 {cargando ? 'Iniciando sesión...' : 'INICIAR SESIÓN'}
               </button>
             </form>
-          </div>
 
+            <div className="d-flex align-items-center my-3">
+              <hr className="flex-grow-1 text-muted" />
+              <span className="px-3 text-muted small">o continúa con</span>
+              <hr className="flex-grow-1 text-muted" />
+            </div>
+
+            <button
+              type="button"
+              onClick={manejarLoginGoogle}
+              className="btn btn-outline-dark w-100 fw-semibold py-2 d-flex align-items-center justify-content-center gap-2"
+              disabled={cargando || cargandoAuth0}
+            >
+              <i className="bi bi-google text-danger"></i>
+              <span>{cargandoAuth0 ? 'Conectando...' : 'Continuar con Google'}</span>
+            </button>
+          </div>
         </div>
       </div>
     </main>
